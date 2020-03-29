@@ -1,91 +1,177 @@
-<!DOCTYPE html>
-<meta charset=utf-8>
-<html lang="en">
-	<head>
-		<title>JOB</title>
-	</head>
-	<body>
-		<a href="StreamDemo.html" style="position:absolute;left:350px;">GetUserMedia Demo</a>
-		<div id="container">
-			<canvas width="320" height="240" id="picture"></canvas>
-			<input id="Take-Picture" type="file" accept="image/*;capture=camera" />
-			<p id="textbit"></p>
-		</div>
-		<!-- <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script> -->
-		<script type="text/javascript" src="JOB.js"></script>
-		<script type="text/javascript">
-			var takePicture = document.querySelector("#Take-Picture"),
-			showPicture = document.createElement("img");
-			Result = document.querySelector("#textbit");
-			var canvas =document.getElementById("picture");
-			var ctx = canvas.getContext("2d");
-			JOB.Init();
-			JOB.SetImageCallback(function(result) {
-				if(result.length > 0){
-					var tempArray = [];
-					for(var i = 0; i < result.length; i++) {
-						tempArray.push(result[i].Format+" : "+result[i].Value);
-					}
-					Result.innerHTML=tempArray.join("<br />");
-				}else{
-					if(result.length === 0) {
-						Result.innerHTML="Decoding failed.";
-					}
-				}
-			});
-			JOB.PostOrientation = true;
-			JOB.OrientationCallback = function(result) {
-				canvas.width = result.width;
-				canvas.height = result.height;
-				var data = ctx.getImageData(0,0,canvas.width,canvas.height);
-				for(var i = 0; i < data.data.length; i++) {
-					data.data[i] = result.data[i];
-				}
-				ctx.putImageData(data,0,0);
-			};
-			JOB.SwitchLocalizationFeedback(true);
-			JOB.SetLocalizationCallback(function(result) {
-				ctx.beginPath();
-				ctx.lineWIdth = "2";
-				ctx.strokeStyle="red";
-				for(var i = 0; i < result.length; i++) {
-					ctx.rect(result[i].x,result[i].y,result[i].width,result[i].height); 
-				}
-				ctx.stroke();
-			});
-			if(takePicture && showPicture) {
-				takePicture.onchange = function (event) {
-					var files = event.target.files;
-					if (files && files.length > 0) {
-						file = files[0];
-						try {
-							var URL = window.URL || window.webkitURL;
-							showPicture.onload = function(event) {
-								Result.innerHTML="";
-								JOB.DecodeImage(showPicture);
-								URL.revokeObjectURL(showPicture.src);
-							};
-							showPicture.src = URL.createObjectURL(file);
-						}
-						catch (e) {
-							try {
-								var fileReader = new FileReader();
-								fileReader.onload = function (event) {
-									showPicture.onload = function(event) {
-										Result.innerHTML="";
-										JOB.DecodeImage(showPicture);
-									};
-									showPicture.src = event.target.result;
-								};
-								fileReader.readAsDataURL(file);
-							}
-							catch (e) {
-								Result.innerHTML = "Neither createObjectURL or FileReader are supported";
-							}
-						}
-					}
-				};
-			}
-		</script>
-	</body>
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>JASISメンバー マイページ</title>
+    <meta charset="utf-8" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- <link rel="stylesheet" type="text/css" href="html5_reset.css"> -->
+    <link rel="stylesheet" type="text/css" href="common.css" />
+
+    <!-- <link href="https://fonts.googleapis.com/css?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet" /> -->
+    <!-- <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet" /> -->
+
+    <!-- ■■■■■■■■ PWA for iOS ■■■■■■■■ -->
+    <!-- アドレスバー等のブラウザのUIを非表示 -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- default（Safariと同じ） / black（黒） / black-translucent（ステータスバーをコンテンツに含める） -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <!-- ホーム画面に表示されるアプリ名 -->
+    <meta name="apple-mobile-web-app-title" content="JASIS会場システム" />
+    <!-- ホーム画面に表示されるアプリアイコン -->
+    <link rel="apple-touch-icon" href="images/icons/icon-152x152.png" />
+
+    <!-- ■■■■■■■■ PWA for others ■■■■■■■■ -->
+    <link rel="manifest" href="manifest.json" />
+  </head>
+
+  <body>
+    <header>
+      <div></div>
+      <div>
+        <a href=""
+          ><img id="jasis_logo" src="common/jlogo.png" alt="JASISロゴ"
+        /></a>
+      </div>
+      <div>
+        <a href=""><i class="fas fa-globe-asia"></i></a>
+      </div>
+    </header>
+
+    <div class="container">
+      <input id="gnav-input" type="checkbox" class="gnav-hidden" />
+      <label id="gnav-btn" for="gnav-input"><i class="fas fa-bars"></i></label>
+      <label id="gnav-black" for="gnav-input"></label>
+      <nav>
+        <ul>
+          <li>
+            <a href="index"><i class="fas fa-home">TOP</i></a>
+          </li>
+          <li>
+            <a href="event"><i class="fas fa-address-card">イベント申込</i></a>
+          </li>
+          <li>
+            <a href="personalinfo"><i class="fas fa-user">会員情報</i></a>
+          </li>
+          <li>
+            <a href="faq"><i class="fas fa-envelope">お問合わせ</i></a>
+          </li>
+          <li>
+            <a href="privacy"
+              ><i class="fas fa-exclamation-circle">プライバシポリシ</i></a
+            >
+          </li>
+          <li>
+            <a href="logout"><i class="fas fa-sign-out-alt">ログアウト</i></a>
+          </li>
+        </ul>
+      </nav>
+
+      <main>
+        <a href="StreamDemo.html" style="position:absolute;left:350px;"
+          >GetUserMedia Demo</a
+        >
+        <div id="container">
+          <canvas width="320" height="240" id="picture"></canvas>
+          <input
+            id="Take-Picture"
+            type="file"
+            accept="image/*;capture=camera"
+          />
+          <p id="textbit"></p>
+        </div>
+        <!-- <script src="http://code.jquery.com/jquery-3.3.1.min.js"></script> -->
+        <script type="text/javascript" src="JOB.js"></script>
+        <script type="text/javascript">
+          var takePicture = document.querySelector("#Take-Picture"),
+            showPicture = document.createElement("img");
+          Result = document.querySelector("#textbit");
+          var canvas = document.getElementById("picture");
+          var ctx = canvas.getContext("2d");
+          JOB.Init();
+          JOB.SetImageCallback(function(result) {
+            if (result.length > 0) {
+              var tempArray = [];
+              for (var i = 0; i < result.length; i++) {
+                tempArray.push(result[i].Format + " : " + result[i].Value);
+              }
+              Result.innerHTML = tempArray.join("<br />");
+            } else {
+              if (result.length === 0) {
+                Result.innerHTML = "Decoding failed.";
+              }
+            }
+          });
+          JOB.PostOrientation = true;
+          JOB.OrientationCallback = function(result) {
+            canvas.width = result.width;
+            canvas.height = result.height;
+            var data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            for (var i = 0; i < data.data.length; i++) {
+              data.data[i] = result.data[i];
+            }
+            ctx.putImageData(data, 0, 0);
+          };
+          JOB.SwitchLocalizationFeedback(true);
+          JOB.SetLocalizationCallback(function(result) {
+            ctx.beginPath();
+            ctx.lineWIdth = "2";
+            ctx.strokeStyle = "red";
+            for (var i = 0; i < result.length; i++) {
+              ctx.rect(
+                result[i].x,
+                result[i].y,
+                result[i].width,
+                result[i].height
+              );
+            }
+            ctx.stroke();
+          });
+          if (takePicture && showPicture) {
+            takePicture.onchange = function(event) {
+              var files = event.target.files;
+              if (files && files.length > 0) {
+                file = files[0];
+                try {
+                  var URL = window.URL || window.webkitURL;
+                  showPicture.onload = function(event) {
+                    Result.innerHTML = "";
+                    JOB.DecodeImage(showPicture);
+                    URL.revokeObjectURL(showPicture.src);
+                  };
+                  showPicture.src = URL.createObjectURL(file);
+                } catch (e) {
+                  try {
+                    var fileReader = new FileReader();
+                    fileReader.onload = function(event) {
+                      showPicture.onload = function(event) {
+                        Result.innerHTML = "";
+                        JOB.DecodeImage(showPicture);
+                      };
+                      showPicture.src = event.target.result;
+                    };
+                    fileReader.readAsDataURL(file);
+                  } catch (e) {
+                    Result.innerHTML =
+                      "Neither createObjectURL or FileReader are supported";
+                  }
+                }
+              }
+            };
+          }
+        </script>
+      </main>
+    </div>
+
+    <footer>
+      <div>JASIS事務局 一般社団法人 日本分析機器工業会内</div>
+      <div><i class="far fa-envelope">お問い合わせはこちら</i></div>
+      <div>copyright&copy;　JAIMA All Rights Reserved.</div>
+    </footer>
+
+    <!-- ■■■■■■■■ PWA for others ■■■■■■■■ -->
+    <script src="app.js"></script>
+  </body>
 </html>
